@@ -6,13 +6,17 @@ const int MAP_HEIGHT = 10;
 Player::Player(const char* n, int startX, int startY)
 	: x(startX), y(startY) {
 	name = (char*)malloc(strlen(n) + 1);  // allocate memory for the name
-	strcpy_s(name, strlen(n) + 1, n);
+	if (name != nullptr) {
+		strcpy_s(name, strlen(n) + 1, n);
+	}
 }
 
 Player::Player(const Player& other)
 	: x(other.x), y(other.y) {
 	name = (char*)malloc(strlen(other.name) + 1);
-	strcpy_s(name, strlen(other.name) + 1, other.name);
+	if (name != nullptr) {
+		strcpy_s(name, strlen(other.name) + 1, other.name);
+	}
 }
 
 Player& Player::operator=(const Player& other) {
@@ -20,7 +24,9 @@ Player& Player::operator=(const Player& other) {
 		free(name);
 		
 		name = (char*)malloc(strlen(other.name) + 1);
-		strcpy_s(name, strlen(other.name) + 1, other.name);
+		if (name != nullptr) {
+			strcpy_s(name, strlen(other.name) + 1, other.name);
+		}
 
 		x = other.x;
 		y = other.y;
@@ -35,7 +41,9 @@ Player::~Player() {
 void Player::setName(const char* Name) {
 	free(name);
 	name = (char*)malloc(strlen(Name) + 1);
-	strcpy_s(name, strlen(Name) + 1, Name);
+	if (name != nullptr) {
+		strcpy_s(name, strlen(Name) + 1, Name);
+	}
 }
 
 void Player::move(char direction) {

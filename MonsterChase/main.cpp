@@ -7,7 +7,7 @@
 const int MAP_WIDTH = 30;
 const int MAP_HEIGHT = 10;
 const int MAX_MONSTER = 10;
-Monster monsters[MAX_MONSTER];
+Monster* monsters = nullptr;
 int numMonsters = 0;
 
 void drawMap(const Player& player) {
@@ -71,10 +71,12 @@ int main() {
     std::cout << "How many monsters do you want at the beginning: " ;
     std::cin >> numMonsters;
 
-    if (numMonsters > MAX_MONSTER) {
+    /*if (numMonsters > MAX_MONSTER) {
         std::cout << "Too many monsters! Setting to maximum (" << MAX_MONSTER << ")." << std::endl;
         numMonsters = MAX_MONSTER;
-    }
+    }*/
+
+    monsters = new Monster[numMonsters];  // 动态分配内存
 
     char tempMonsterName[100];
     for (int i = 0; i < numMonsters; i++) {
@@ -139,6 +141,12 @@ int main() {
 
         // 每隔10步，如果还有空间，添加一个新的怪物
         if (step % 10 == 0 && numMonsters < MAX_MONSTER && step!=0) {
+            Monster* newMonsters = new Monster[numMonsters + 1];
+            for (int i = 0; i < numMonsters; i++) {
+                newMonsters[i] = monsters[i];
+            }
+            delete[] monsters; // 释放旧内存
+            monsters = newMonsters;  // 将monsters指针指向新的内存
             // ... 这里加入创建新怪物的代码
             do {
                 monsters[numMonsters].reset();
@@ -154,17 +162,32 @@ int main() {
         }
 
         // 整理monster数组，将活的怪物移到数组的左侧
-        int aliveIndex = 0; // 用于指向下一个应该放置活怪物的位置
+        int aliveIndex = 0;
+
         for (int i = 0; i < numMonsters; i++) {
             if (monsters[i].getIsAlive()) {
-                if (i != aliveIndex) { // 如果当前怪物不在它应该在的位置，就移动它
+                if (i != aliveIndex) {
                     monsters[aliveIndex] = monsters[i];
                 }
-                aliveIndex++; // 移到下一个位置
+                aliveIndex++;
             }
         }
-        numMonsters = aliveIndex; // 更新怪物数量
+        numMonsters = aliveIndex;
+
+        // 如果当前活着的怪物数量少于之前的数量的一半，那么我们需要调整内存大小
+        if (aliveIndex < MAX_MONSTER) {
+            Monster* newMonsters = new Monster[aliveIndex];
+            for (int i = 0; i < aliveIndex; i++) {
+                newMonsters[i] = monsters[i];
+            }
+            delete[] monsters;
+            monsters = newMonsters;
+        }
+
+        numMonsters = aliveIndex;
         step++;
+
     }
+    delete[] monsters;
     return 0;
 }

@@ -6,7 +6,9 @@
 Monster::Monster() {
 	const char* defaultStr = "defaultName";
 	name = (char*)malloc(strlen(defaultStr) + 1);
-	strcpy_s(name, strlen(defaultStr) + 1, defaultStr);
+	if (name != nullptr) {
+		strcpy_s(name, strlen(defaultStr) + 1, defaultStr);
+	}
 	x = 0;
 	y = 0;
 	lifespan = 5;
@@ -16,19 +18,27 @@ Monster::Monster() {
 Monster::Monster(const char* n, int startX, int startY, int l) 
 	: x(startX), y(startY), lifespan(l), currentAge(0), isAlive(true){
 	name = (char*)malloc(strlen(n) + 1);
-	strcpy_s(name, strlen(n) + 1, n);
+	if (name != nullptr) {
+		strcpy_s(name, strlen(n) + 1, n);
+	}
 }
 Monster::Monster(const Monster& other)
 	: x(other.x), y(other.y), lifespan(other.lifespan), currentAge(other.currentAge), isAlive(other.isAlive) {
 	name = (char*)malloc(strlen(other.name) + 1);
-	strcpy_s(name, strlen(other.name) + 1, other.name);
+	if (name != nullptr) {
+		strcpy_s(name, strlen(other.name) + 1, other.name);
+	}
 }
 Monster& Monster::operator=(const Monster& other) {
 	if (this != &other) {
-		free(name);
+		if (name != nullptr) { // 检查指针是否为nullptr
+			free(name);
+		}
 
 		name = (char*)malloc(strlen(other.name) + 1);
-		strcpy_s(name, strlen(other.name) + 1, other.name);
+		if (name != nullptr) {
+			strcpy_s(name, strlen(other.name) + 1, other.name);
+		}
 
 		x = other.x;//can get x through this way？
 		y = other.y;
@@ -39,12 +49,17 @@ Monster& Monster::operator=(const Monster& other) {
 	return *this;
 }
 Monster::~Monster() {
-	free(name);
+	if (name != nullptr) {
+		free(name);
+		name = nullptr; // 设置为nullptr防止多次释放
+	}
 }
 void Monster::setName(const char* Name) {
 	free(name);
 	name = (char*)malloc(strlen(Name) + 1);
-	strcpy_s(name, strlen(Name) + 1, Name);
+	if (name != nullptr) {
+		strcpy_s(name, strlen(Name) + 1, Name);
+	}
 }
 void Monster::move(char direction) {
 	switch (direction) {
@@ -98,8 +113,15 @@ int Monster::getY() const {
 }
 void Monster::reset() {
 	const char* defaultStr = "defaultName";
+
+	if (name != nullptr) {
+		free(name);
+	}
+
 	name = (char*)malloc(strlen(defaultStr) + 1);
-	strcpy_s(name, strlen(defaultStr) + 1, defaultStr);
+	if (name != nullptr) {
+		strcpy_s(name, strlen(defaultStr) + 1, defaultStr);
+	}
 	x = 0;
 	y = 0;
 	lifespan = 5;
