@@ -2,6 +2,8 @@
 
 #include "Player.h"
 #include "Monster.h"
+
+#include "EngineMath.h"
 #include <iostream>
 
 const int MAP_WIDTH = 30;
@@ -12,7 +14,6 @@ int numMonsters = 0;
 
 void drawMap(const Player& player) {
     //system("cls");
-
     for (int y = 0; y < MAP_HEIGHT; y++) {
         for (int x = 0; x < MAP_WIDTH; x++) {
             if (x == player.getX() && y == player.getY()) {
@@ -34,26 +35,6 @@ void drawMap(const Player& player) {
     }
 }
 
-class LCG {
-private:
-    unsigned long long a = 1664525;
-    unsigned long long c = 1013904223;
-    unsigned long long m = 4294967296; // 2^32
-    unsigned long long seed;
-public:
-    LCG(unsigned long long initialSeed) : seed(initialSeed) {}
-
-    unsigned long long next() {
-        seed = (a * seed + c) % m;
-        return seed;
-    }
-
-    // 返回0到max-1之间的随机数
-    unsigned long next(unsigned long max) {
-        return next() % max;
-    }
-};
-
 bool isPositionOccupied(int x, int y, int currentMonsterIndex) {
     for (int i = 0; i < currentMonsterIndex; i++) {
         if (monsters[i].getX() == x && monsters[i].getY() == y) {
@@ -71,12 +52,7 @@ int main() {
     std::cout << "How many monsters do you want at the beginning: " ;
     std::cin >> numMonsters;
 
-    /*if (numMonsters > MAX_MONSTER) {
-        std::cout << "Too many monsters! Setting to maximum (" << MAX_MONSTER << ")." << std::endl;
-        numMonsters = MAX_MONSTER;
-    }*/
-
-    monsters = new Monster[numMonsters];  // 动态分配内存
+    monsters = new Monster[numMonsters];  // Dynamically allocate memory
 
     char tempMonsterName[100];
     for (int i = 0; i < numMonsters; i++) {
@@ -85,7 +61,7 @@ int main() {
             monsters[i].setX(rng.next(MAP_WIDTH));
             monsters[i].setY(rng.next(MAP_HEIGHT));
             monsters[i].setLifespan(rng.next(20));
-        } while ((isPositionOccupied(monsters[i].getX(), monsters[i].getY(), i))||monsters[i].getlifespan() <5); // 如果位置被占用，重新生成
+        } while ((isPositionOccupied(monsters[i].getX(), monsters[i].getY(), i))||monsters[i].getlifespan() <5); // If the position is occupied, regenerate
 
         sprintf_s(tempMonsterName, sizeof(tempMonsterName), "Monster%d", i + 1);
         monsters[i].setName(tempMonsterName);
@@ -98,7 +74,7 @@ int main() {
     std::cin.getline(tempName, sizeof(tempName));
     player.setName(tempName);
 
-    // 为Player随机生成一个位置，确保这个位置没有被Monster占据
+    // Randomly generate a position for Player, ensuring the position is not occupied by a Monster
     int playerX, playerY;
     do {
         playerX = rng.next(MAP_WIDTH);
@@ -123,10 +99,10 @@ int main() {
         std::cout << "input direction of player(W/A/S/D)  or Q to quit: ";
         std::cin >> input;
 
-        // 如果用户输入Q或q，退出游戏
+        // Exit the game if the user inputs 'Q' or 'q'
         if (input == 'Q' || input == 'q') {
             isGameAlive = false;
-            continue; // 跳过当前循环的剩余部分
+            continue;
         }
 
         player.move(input);
@@ -139,15 +115,15 @@ int main() {
             }
         }
 
-        // 每隔10步，如果还有空间，添加一个新的怪物
+        // Every 10 stpes, if there is space, add a new monster
         if (step % 10 == 0 && numMonsters < MAX_MONSTER && step!=0) {
             Monster* newMonsters = new Monster[numMonsters + 1];
             for (int i = 0; i < numMonsters; i++) {
                 newMonsters[i] = monsters[i];
             }
-            delete[] monsters; // 释放旧内存
-            monsters = newMonsters;  // 将monsters指针指向新的内存
-            // ... 这里加入创建新怪物的代码
+            delete[] monsters;
+            monsters = newMonsters;  // Point the monsters pointer to the new memory
+
             do {
                 monsters[numMonsters].reset();
                 monsters[numMonsters].setAlive(true);
@@ -155,13 +131,13 @@ int main() {
                 monsters[numMonsters].setY(rng.next(MAP_HEIGHT));
                 monsters[numMonsters].setLifespan(rng.next(20));
                 std::cout << "TEST:" << monsters[numMonsters].getlifespan()<<std::endl;
-            } while ((isPositionOccupied(monsters[numMonsters].getX(), monsters[numMonsters].getY(), numMonsters)) || monsters[numMonsters].getlifespan() < 5); // 如果位置被占用，重新生成
+            } while ((isPositionOccupied(monsters[numMonsters].getX(), monsters[numMonsters].getY(), numMonsters)) || monsters[numMonsters].getlifespan() < 5); // If the position is occupied, regenerate
             sprintf_s(tempMonsterName, sizeof(tempMonsterName), "Monster%d", numMonsters + 1);
             monsters[numMonsters].setName(tempMonsterName);
             numMonsters++;
         }
 
-        // 整理monster数组，将活的怪物移到数组的左侧
+        // Organize the monsters array, moving the living monsters to the left side of the array
         int aliveIndex = 0;
 
         for (int i = 0; i < numMonsters; i++) {
@@ -174,7 +150,7 @@ int main() {
         }
         numMonsters = aliveIndex;
 
-        // 如果当前活着的怪物数量少于之前的数量的一半，那么我们需要调整内存大小
+        // If the current number of living monsters is less than the previous count, memory size needs to be adjusted
         if (aliveIndex < MAX_MONSTER) {
             Monster* newMonsters = new Monster[aliveIndex];
             for (int i = 0; i < aliveIndex; i++) {

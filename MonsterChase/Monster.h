@@ -4,32 +4,30 @@
 
 #include <cstring>
 #include <cstdlib>
+#include "GameEntity.h"
 #include "Player.h"
 
-class Monster {
+class Monster : public GameEntity{
 private:
-	char* name;
-	int x;
-	int y;
 	int lifespan;
 	int currentAge = 0;
 	bool isAlive;
 
 public:
-	Monster();
-	Monster(const char* n, int startX, int startY, int l);
-	Monster(const Monster& other);
+	Monster()
+		:GameEntity("defaultName", 0, 0), lifespan(0), isAlive(false) {}
+	Monster(const char* n, int startX, int startY, int l)
+		:GameEntity(n, startX, startY), lifespan(l), isAlive(true) {}
+	Monster(const Monster& other)
+		:GameEntity(other.name, other.x, other.y),
+		lifespan(other.lifespan), currentAge(other.currentAge), isAlive(other.isAlive) {}
 	Monster& operator=(const Monster& other);
-	~Monster();
+	~Monster() {}
 
-	void move(char direction); // Using "W","A","S","D" present direction
-	void chaseAI(const Player& player);
+	void move(char direction) override; // Using "W","A","S","D" present direction
+	void chaseAI(const GameEntity& player);
 	void checkDeath();
-	int getX() const;
-	int getY() const;
-	void setX(int X) { x = X; }
-	void setY(int Y) { y = Y; }
-	void setName(const char* Name);
+
 	void setAlive(bool ifA) { isAlive = ifA; }
 	void setLifespan(int ls) { lifespan = ls; }
 	const char* getName() const { return name; }
