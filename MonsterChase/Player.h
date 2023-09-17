@@ -14,7 +14,7 @@ public:
 	Player(const char* n, int startX, int startY)
 		: GameEntity(n, startX, startY) {}
 	Player(const Player& other)
-		: GameEntity(other.name, other.x, other.y) {}
+		: GameEntity(other.name, other.getX(), other.getY()) {}
 	Player& operator=(const Player& other);
 	~Player() {}
 

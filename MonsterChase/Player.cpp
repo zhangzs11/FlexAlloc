@@ -12,16 +12,16 @@ Player& Player::operator=(const Player& other) {
 void Player::move(char direction) {
 	switch (direction) {
 		case'W':	//Up
-			if (y > 0) { y--; }
+			if (position.getY() > 0) { position.setY(position.getY() - 1); }
 			break;
 		case'A':	//Left
-			if (x > 0) { x--; }
+			if (position.getX() > 0) { position.setX(position.getX() - 1); }
 			break;
 		case'S':	//Down
-			if (y < MAP_HEIGHT - 1) { y++; }
+			if (position.getY() < MAP_HEIGHT - 1) { position.setY(position.getY() + 1); }
 			break;
 		case'D':	//Right
-			if (x < MAP_WIDTH - 1) { x++; }
+			if (position.getX() < MAP_WIDTH - 1) { position.setX(position.getX() + 1); }
 			break;
 		default:
 			break;

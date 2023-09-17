@@ -1,22 +1,23 @@
 #pragma once
 #include <cstring>
 #include <cstdlib>
+#include "Point2D.h"
 class GameEntity {
 protected:
 	char* name;
-	int x, y;
+	Point2D position;
 
 public:
-	GameEntity(const char* n, int startX, int startY) : name(_strdup(n)), x(startX), y(startY) {}
+	GameEntity(const char* n, int startX, int startY) : name(_strdup(n)), position(startX, startY) {}
 	virtual ~GameEntity() { free(name); }
 	virtual void move(char direction) = 0;
 
-	int getX() const { return x; }
-	int getY() const { return y; }
+	int getX() const { return position.getX(); }
+	int getY() const { return position.getY(); }
 	const char* getName() const { return name; }
 
-	void setX(int X) { x = X; }
-	void setY(int Y) { y = Y; }
+	void setX(int X) { position.setX(X); }
+	void setY(int Y) { position.setY(Y); }
 	void setName(const char* Name) {
 		free(name);
 		name = (char*)malloc(strlen(Name) + 1);
@@ -29,8 +30,7 @@ public:
 			free(name);
 
 			name = _strdup(other.name);
-			x = other.x;
-			y = other.y;
+			position = other.position;
 		}
 		return *this;
 	}

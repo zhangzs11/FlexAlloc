@@ -19,7 +19,7 @@ public:
 	Monster(const char* n, int startX, int startY, int l)
 		:GameEntity(n, startX, startY), lifespan(l), isAlive(true) {}
 	Monster(const Monster& other)
-		:GameEntity(other.name, other.x, other.y),
+		:GameEntity(other.name, other.getX(), other.getY()),
 		lifespan(other.lifespan), currentAge(other.currentAge), isAlive(other.isAlive) {}
 	Monster& operator=(const Monster& other);
 	~Monster() {}

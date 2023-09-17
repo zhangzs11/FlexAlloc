@@ -15,16 +15,16 @@ Monster& Monster::operator=(const Monster& other) {
 void Monster::move(char direction) {
 	switch (direction) {
 	case'W':	//Up
-		y--;
+		position.setY(position.getY() - 1);
 		break;
 	case'A':	//Left
-		x--;
+		position.setX(position.getX() - 1);
 		break;
 	case'S':	//Down
-		y++;
+		position.setY(position.getY() + 1);
 		break;
 	case'D':	//Right
-		x++;
+		position.setX(position.getX() + 1);
 		break;
 	default:
 		break;
@@ -33,8 +33,8 @@ void Monster::move(char direction) {
 	checkDeath();
 }
 void Monster::chaseAI(const GameEntity& player) {
-	int dx = player.getX() - x;
-	int dy = player.getY() - y;
+	int dx = player.getX() - this->getX();
+	int dy = player.getY() - this->getY();
 	if (dx > dy) {
 		if (dx > 0) {
 			move('D');
@@ -67,8 +67,8 @@ void Monster::reset() {
 	if (name != nullptr) {
 		strcpy_s(name, strlen(defaultStr) + 1, defaultStr);
 	}
-	x = 0;
-	y = 0;
+	position.setX(0);
+	position.setY(0);
 	lifespan = 5;
 	currentAge = 0;
 	isAlive = 0;
