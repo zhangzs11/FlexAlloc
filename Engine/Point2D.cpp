@@ -34,3 +34,29 @@ void Point2D::move(const Point2D& velocity, float time) {
 	x += velocity.x * time;
 	y += velocity.y * time;
 }
+Point2D& Point2D::operator+=(const Point2D& other) {
+	x += other.x;
+	y += other.y;
+	return *this;
+}
+Point2D& Point2D::operator-=(const Point2D& other) {
+	x -= other.x;
+	y -= other.y;
+	return *this;
+}
+Point2D& Point2D::operator*=(float scalar) {
+	x *= scalar;
+	y *= scalar;
+	return *this;
+}
+Point2D& Point2D::operator/=(float scalar) {
+	if (scalar == 0.0f) {
+		throw std::runtime_error("Division by zero!");
+	}
+	x /= scalar;
+	y /= scalar;
+	return *this;
+}
+Point2D Point2D::operator-() const {
+	return Point2D(-x, -y);
+}

@@ -17,6 +17,11 @@ public:
 	Point2D operator/(float scalar) const;
 	bool operator==(const Point2D& other) const;
 	bool operator!=(const Point2D& other) const;
+	Point2D& operator+=(const Point2D& other);
+	Point2D& operator-=(const Point2D& other);
+	Point2D& operator*=(float scalar);
+	Point2D& operator/=(float scalar);
+	Point2D operator-() const;
 	static float distance(const Point2D& a, const Point2D& b);
 	void move(const Point2D& velocity, float time);
 };
