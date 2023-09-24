@@ -168,8 +168,8 @@ void gameloop() {
     delete[] monsters;
 }
 int main() {
-    //gameloop();
     Point2DUnitTest();
     std::cout << "All tests passed!\n";
+    gameloop();
     return 0;
 }
