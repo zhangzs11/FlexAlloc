@@ -12,6 +12,8 @@ const int MAX_MONSTER = 10;
 Monster* monsters = nullptr;
 int numMonsters = 0;
 
+extern void Point2DUnitTest();
+
 void drawMap(const Player& player) {
     //system("cls");
     for (int y = 0; y < MAP_HEIGHT; y++) {
@@ -43,13 +45,12 @@ bool isPositionOccupied(int x, int y, int currentMonsterIndex) {
     }
     return false;
 }
-
-int main() {
+void gameloop() {
     int step = 0;
     Player player("Player", 0, 0);
     LCG rng(static_cast<unsigned long>(time(nullptr)));
 
-    std::cout << "How many monsters do you want at the beginning: " ;
+    std::cout << "How many monsters do you want at the beginning: ";
     std::cin >> numMonsters;
 
     monsters = new Monster[numMonsters];  // Dynamically allocate memory
@@ -61,11 +62,11 @@ int main() {
             monsters[i].setX(rng.next(MAP_WIDTH));
             monsters[i].setY(rng.next(MAP_HEIGHT));
             monsters[i].setLifespan(rng.next(20));
-        } while ((isPositionOccupied(monsters[i].getX(), monsters[i].getY(), i))||monsters[i].getlifespan() <5); // If the position is occupied, regenerate
+        } while ((isPositionOccupied(monsters[i].getX(), monsters[i].getY(), i)) || monsters[i].getlifespan() < 5); // If the position is occupied, regenerate
 
         sprintf_s(tempMonsterName, sizeof(tempMonsterName), "Monster%d", i + 1);
         monsters[i].setName(tempMonsterName);
-        std::cout << monsters[i].getName() <<"  " << monsters[i].getX() << "  " << monsters[i].getY() << std::endl;
+        std::cout << monsters[i].getName() << "  " << monsters[i].getX() << "  " << monsters[i].getY() << std::endl;
     }
 
     char tempName[100];
@@ -93,7 +94,7 @@ int main() {
         std::cout << "Score: " << step * 50 << std::endl;
         std::cout << "Player: " << player.getName() << "  X: " << player.getX() << "  Y: " << player.getY() << std::endl;
         for (int i = 0; i < numMonsters; i++) {
-            std::cout<< monsters[i].getName() << ":  X:" << monsters[i].getX() << "  Y:" << monsters[i].getY() << "  leftSpan:"<<monsters[i].getleftSpan()<<std::endl;
+            std::cout << monsters[i].getName() << ":  X:" << monsters[i].getX() << "  Y:" << monsters[i].getY() << "  leftSpan:" << monsters[i].getleftSpan() << std::endl;
         }
         drawMap(player);
         std::cout << "input direction of player(W/A/S/D)  or Q to quit: ";
@@ -116,7 +117,7 @@ int main() {
         }
 
         // Every 10 stpes, if there is space, add a new monster
-        if (step % 10 == 0 && numMonsters < MAX_MONSTER && step!=0) {
+        if (step % 10 == 0 && numMonsters < MAX_MONSTER && step != 0) {
             Monster* newMonsters = new Monster[numMonsters + 1];
             for (int i = 0; i < numMonsters; i++) {
                 newMonsters[i] = monsters[i];
@@ -130,7 +131,7 @@ int main() {
                 monsters[numMonsters].setX(rng.next(MAP_WIDTH));
                 monsters[numMonsters].setY(rng.next(MAP_HEIGHT));
                 monsters[numMonsters].setLifespan(rng.next(20));
-                std::cout << "TEST:" << monsters[numMonsters].getlifespan()<<std::endl;
+                std::cout << "TEST:" << monsters[numMonsters].getlifespan() << std::endl;
             } while ((isPositionOccupied(monsters[numMonsters].getX(), monsters[numMonsters].getY(), numMonsters)) || monsters[numMonsters].getlifespan() < 5); // If the position is occupied, regenerate
             sprintf_s(tempMonsterName, sizeof(tempMonsterName), "Monster%d", numMonsters + 1);
             monsters[numMonsters].setName(tempMonsterName);
@@ -165,5 +166,10 @@ int main() {
 
     }
     delete[] monsters;
+}
+int main() {
+    //gameloop();
+    Point2DUnitTest();
+    std::cout << "All tests passed!\n";
     return 0;
 }

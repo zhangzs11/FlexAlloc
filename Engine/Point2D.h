@@ -25,3 +25,4 @@ public:
 	static float distance(const Point2D& a, const Point2D& b);
 	void move(const Point2D& velocity, float time);
 };
+Point2D operator*(float scalar, const Point2D& point);

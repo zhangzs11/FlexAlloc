@@ -60,3 +60,7 @@ Point2D& Point2D::operator/=(float scalar) {
 Point2D Point2D::operator-() const {
 	return Point2D(-x, -y);
 }
+
+Point2D operator*(float scalar, const Point2D& point) {
+	return Point2D(scalar * point.getX(), scalar * point.getY());
+}
