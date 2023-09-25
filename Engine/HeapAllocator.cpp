@@ -12,6 +12,48 @@ HeapManager::HeapManager(size_t size) {
 HeapManager::~HeapManager() {
 	::HeapFree(::GetProcessHeap(), 0, heapStart);
 }
+void HeapManager::insertAndCoalesce(BlockDescriptor* block) {
+	BlockDescriptor* prev = nullptr;
+	BlockDescriptor* current = freeBlocks;
+
+	//find appropriate place to insert
+	while (current && current->startAddress < block->startAddress) {
+		prev = current;
+		current = current->next;
+	}
+	//Insert he block
+	block->next = current;
+	block->prev = prev;
+	if (prev) {
+		prev->next = block;
+	}
+	else {
+		freeBlocks = block; //Update head
+	}
+	if (current) {
+		current->prev = block;
+	}
+
+	//Attempt to coalesce with previous and next blocks
+
+	//Try to coalesce with the previous block
+	if (prev && static_cast<char*>(prev->startAddress) + prev->size == block->startAddress) {
+		prev->size += block->size + sizeof(BlockDescriptor);
+		prev->next = block->next;
+		if (block->next) {
+			block->next->prev = prev;
+		}
+	}
+
+	//Try to coalesce with the next block
+	if (current && static_cast<char*>(block->startAddress) + block->size == current->startAddress) {
+		block->size += current->size + sizeof(BlockDescriptor);
+		block->next = current->next;
+		if (current->next) {
+			current->next->prev = block;
+		}
+	}
+}
 void* HeapManager::allocate(size_t size) {
 	BlockDescriptor* current = freeBlocks;
 	while (current) {
@@ -50,31 +92,7 @@ void HeapManager::deallocate(void* ptr) {
 				current->next->prev = current->prev;
 			}
 
-			// Add this block back to freeBlocks list
-			// for simplicity, insert it at the front
-			current->next = freeBlocks;
-			current->prev = nullptr;
-			if (freeBlocks) {
-				freeBlocks->prev = current;
-			}
-			freeBlocks = current;
-
-			//Attempt to coalesce this block with adjancent blocks in freeBlocks.
-			BlockDescriptor* tmp = freeBlocks;
-			while (tmp) {
-				char* tmpEndAddress = static_cast<char*>(tmp->startAddress) + tmp->size;
-				if (tmp->next && tmpEndAddress == tmp->next->startAddress) {
-					//Coalesce with the enext block
-					tmp->size += tmp->next->size + sizeof(BlockDescriptor);
-					//Remove the next block from the list
-					BlockDescriptor* toRemove = tmp->next;
-					if (toRemove->next) {
-						toRemove->next->prev = tmp;
-					}
-				}
-				tmp = tmp->next;
-			}
-			return;
+			insertAndCoalesce(current);
 		}
 		current = current->next;
 	}
