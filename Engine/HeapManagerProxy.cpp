@@ -26,7 +26,7 @@ namespace HeapManagerProxy {
 		BlockDescriptor* current = freeBlocks;
 
 		//find appropriate place to insert
-		while (current && current->startAddress < block->actualStart) {
+		while (current && current->startAddress < block->startAddress) {
 			prev = current;
 			current = current->next;
 		}
@@ -69,7 +69,7 @@ namespace HeapManagerProxy {
 		BlockDescriptor* current = freeBlocks;
 		while (current) {
 			if (current->size >= size + sizeof(BlockDescriptor)) {
-				BlockDescriptor* newBlock = reinterpret_cast<BlockDescriptor*>(current->startAddress);
+				BlockDescriptor* newBlock = static_cast<BlockDescriptor*>(current->startAddress);
 				newBlock->startAddress = static_cast<char*>(current->startAddress) + sizeof(BlockDescriptor);
 				newBlock->actualStart = newBlock->startAddress;
 				newBlock->size = size;
