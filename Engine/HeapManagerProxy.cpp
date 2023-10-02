@@ -204,7 +204,7 @@ namespace HeapManagerProxy {
 		}
 		return false;
 	}
-	void Collect(HeapManager* pHeapManager) {
+	void Collect(HeapManager* pHeapManager) {//合并的是空闲块，应该startAddress和actualStart都一样吧
 		BlockDescriptor* current = pHeapManager->GetFreeBlocks();
 		while (current && current->next) {
 			char* currentEnd = static_cast<char*>(current->startAddress) + current->size;
