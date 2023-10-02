@@ -4,8 +4,8 @@ namespace HeapManagerProxy {
 		//heapStart = ::HeapAlloc(::GetProcessHeap(), 0, size);
 		heapStart = pHeapMemory;
 		heapSize = size;
-		freeBlocks = reinterpret_cast<BlockDescriptor*>(heapStart);
-		freeBlocks->startAddress = static_cast<char*>(heapStart) + sizeof(BlockDescriptor); //operate memory in 1 byte(char)
+		freeBlocks = reinterpret_cast<BlockDescriptor*>(heapStart);//revise : freeBlocks = new (heapStart) BlockDescriptor;
+		freeBlocks->startAddress = static_cast<char*>(heapStart) + sizeof(BlockDescriptor);
 		freeBlocks->actualStart = freeBlocks->startAddress;
 		freeBlocks->size = size - sizeof(BlockDescriptor);
 		freeBlocks->actualSize = freeBlocks->size;
@@ -69,7 +69,7 @@ namespace HeapManagerProxy {
 		BlockDescriptor* current = freeBlocks;
 		while (current) {
 			if (current->size >= size + sizeof(BlockDescriptor)) {
-				BlockDescriptor* newBlock = static_cast<BlockDescriptor*>(current->startAddress);
+				BlockDescriptor* newBlock = static_cast<BlockDescriptor*>(current->startAddress);//revise: BlockDescriptor* newBlock = new (current->startAddress) BlockDescriptor();
 				newBlock->startAddress = static_cast<char*>(current->startAddress) + sizeof(BlockDescriptor);
 				newBlock->actualStart = newBlock->startAddress;
 				newBlock->size = size;
@@ -101,7 +101,7 @@ namespace HeapManagerProxy {
 			size_t totalSize = size + sizeof(BlockDescriptor) + adjustment;
 
 			if (current->size >= totalSize) {
-				BlockDescriptor* newBlock = reinterpret_cast<BlockDescriptor*>(adjustedAddress - sizeof(BlockDescriptor));
+				BlockDescriptor* newBlock = reinterpret_cast<BlockDescriptor*>(adjustedAddress - sizeof(BlockDescriptor));//revise: BlockDescriptor* newBlock = new (adjustedAddress - sizeof(BlockDescriptor)) BlockDescriptor();
 				newBlock->startAddress = reinterpret_cast<void*>(adjustedAddress);
 				newBlock->actualStart = reinterpret_cast<void*>(reinterpret_cast<uintptr_t>(current->startAddress) + sizeof(BlockDescriptor));
 				newBlock->size = size;
@@ -139,8 +139,8 @@ namespace HeapManagerProxy {
 					current->next->prev = current->prev;
 				}
 
-				BlockDescriptor* originalBlock = reinterpret_cast<BlockDescriptor*>(reinterpret_cast<char*>(current->actualStart) - sizeof(BlockDescriptor));
-				*originalBlock = *current; // copy the content
+				BlockDescriptor* originalBlock = reinterpret_cast<BlockDescriptor*>(reinterpret_cast<char*>(current->actualStart) - sizeof(BlockDescriptor));//revise: BlockDescriptor temp = *current; 
+				*originalBlock = *current; // revise: BlockDescriptor* originalBlock = new(reinterpret_cast<char*>(current->actualStart) - sizeof(BlockDescriptor)) BlockDescriptor(temp);
 				originalBlock->startAddress = originalBlock->actualStart;
 				originalBlock->size = originalBlock->actualSize;
 
