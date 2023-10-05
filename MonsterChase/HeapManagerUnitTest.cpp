@@ -1,4 +1,4 @@
-#include "HeapManagerProxy.h"
+﻿#include "HeapManagerProxy.h"
 #include <Windows.h>
 
 #include <assert.h>
@@ -11,7 +11,20 @@
 #define USE_HEAP_ALLOC
 #define TEST_SINGLE_LARGE_ALLOCATION
 
-
+void myHeapManager_UnitTest() {//合并有问题，空闲块的排序如果按照start来排，最开始的会在后边，但是头部还是在最前面，按理说合并后，的头部还是应该是在前面，但是因为顺序在后面，可能会用后面的头部，但是大小加的还是数据和头的大小，这样就加多了，头部在最前面根本没在后面连在一起
+	using namespace HeapManagerProxy;
+	const size_t 		sizeHeap = 1024 * 1024;
+	const unsigned int 	numDescriptors = 2048;
+	void* pHeapMemory = HeapAlloc(GetProcessHeap(), 0, sizeHeap);
+	HeapManager* pHeapManager = CreateHeapManager(pHeapMemory, sizeHeap, numDescriptors);
+	void* pPtr1 = alloc(pHeapManager, 100);
+	void* pPtr2 = alloc(pHeapManager, 100);
+	//free(pHeapManager, pPtr1);
+	free(pHeapManager, pPtr2);
+	//Collect(pHeapManager);
+	ShowFreeBlocks(pHeapManager);
+	ShowOutstandingAllocations(pHeapManager);
+}
 bool HeapManager_UnitTest()
 {
 	using namespace HeapManagerProxy;

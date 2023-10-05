@@ -14,6 +14,7 @@ int numMonsters = 0;
 
 extern void Point2DUnitTest();
 extern bool HeapManager_UnitTest();
+extern void myHeapManager_UnitTest();
 void drawMap(const Player& player) {
     //system("cls");
     for (int y = 0; y < MAP_HEIGHT; y++) {
@@ -170,7 +171,8 @@ void gameloop() {
 int main() {
     //Point2DUnitTest();
     //std::cout << "All Point2D tests passed!\n";
-    HeapManager_UnitTest();
+    //HeapManager_UnitTest();
+    myHeapManager_UnitTest();
     //gameloop();
     return 0;
 }
