@@ -1,4 +1,5 @@
 #include "HeapManagerProxy.h"
+//为了思路清晰，应该只在collect合并，最好insertAndCoalesce函数删去合并部分
 namespace HeapManagerProxy {
 	HeapManager::HeapManager(void* pHeapMemory, size_t size, unsigned int numDescriptors) {
 		//heapStart = ::HeapAlloc(::GetProcessHeap(), 0, size);
@@ -217,6 +218,9 @@ namespace HeapManagerProxy {
 			uintptr_t nextStart = reinterpret_cast<uintptr_t>(current->next->startAddress);
 
 			if (currentEnd == nextStart || currentEnd + sizeof(BlockDescriptor) == nextStart) {
+				//Maybe两种情况分别
+				//currentEnd == nextStart : 头部指针需要调换，真正在前面的，链表后面的留
+				//currentEnd + sizeof(BlockDescriptor) == nextStart ： 不需要调换
 				current->size += current->next->actualSize + sizeof(BlockDescriptor);
 				current->actualSize += current->next->actualSize + sizeof(BlockDescriptor);
 				BlockDescriptor* toBeDeleted = current->next;
