@@ -219,8 +219,8 @@ namespace HeapManagerProxy {
 
 			if (currentEnd == nextStart || currentEnd + sizeof(BlockDescriptor) == nextStart) {
 				//Maybe两种情况分别
-				//currentEnd == nextStart : 头部指针需要调换，真正在前面的，链表后面的留
-				//currentEnd + sizeof(BlockDescriptor) == nextStart ： 不需要调换
+				//currentEnd == nextStart : 真正在前面的，链表后面的留，后面留的start要变，减sizeof(BlockDescriptor) +前一个的size，size更新一样都是sizeof + 另一个size
+				//currentEnd + sizeof(BlockDescriptor) == nextStart ： 留前一个，start不变，
 				current->size += current->next->actualSize + sizeof(BlockDescriptor);
 				current->actualSize += current->next->actualSize + sizeof(BlockDescriptor);
 				BlockDescriptor* toBeDeleted = current->next;
