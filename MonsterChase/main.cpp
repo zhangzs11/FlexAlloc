@@ -171,8 +171,8 @@ void gameloop() {
 int main() {
     //Point2DUnitTest();
     //std::cout << "All Point2D tests passed!\n";
-    //HeapManager_UnitTest();
-    myHeapManager_UnitTest();
+    HeapManager_UnitTest();
+    //myHeapManager_UnitTest();
     //gameloop();
     return 0;
 }
