@@ -4,21 +4,21 @@
 namespace HeapManagerProxy {
 
 	struct BlockDescriptor {
-		void* startAddress;
-		void* actualStart;
-		size_t size;
-		size_t actualSize;
-		BlockDescriptor* prev;
-		BlockDescriptor* next;
+		void* startAddress = nullptr;
+		void* actualStart = nullptr;
+		size_t size = 0;
+		size_t actualSize = 0;
+		BlockDescriptor* prev = nullptr;
+		BlockDescriptor* next = nullptr;
 	};
 
 	class HeapManager {
 	private:
-		BlockDescriptor* freeBlocks;
-		BlockDescriptor* outstandingBlocks;
 		void* heapStart;
 		size_t heapSize;
 	public:
+		BlockDescriptor* freeBlocks = nullptr;
+		BlockDescriptor* outstandingBlocks = nullptr;
 		static const size_t s_MinumumToLeave = 64;
 
 		HeapManager(void* pHeapMemory, size_t size, unsigned int numDescriptors);
