@@ -246,6 +246,5 @@ bool HeapManager_UnitTest()
 #endif
 	}
 	// we succeeded
-	std::cout << "Zhang Success!" << std::endl;
 	return true;
 }
