@@ -211,48 +211,52 @@ namespace HeapManagerProxy {
 		return false;
 	}
 	void Collect(HeapManager* pHeapManager) {
-		BlockDescriptor* current = pHeapManager->GetFreeBlocks();
-		while (current && current->next) {
-			uintptr_t currentEnd = reinterpret_cast<uintptr_t>(current->startAddress) + current->size;
-			uintptr_t nextStart = reinterpret_cast<uintptr_t>(current->next->startAddress);
+		for (int i = 0; i < 10; i++) {
+			BlockDescriptor* current = pHeapManager->GetFreeBlocks();
+			while (current && current->next) {
+				uintptr_t currentEnd = reinterpret_cast<uintptr_t>(current->startAddress) + current->size;
+				uintptr_t nextStart = reinterpret_cast<uintptr_t>(current->next->startAddress);
 
-			if (currentEnd == nextStart) {
-				/*current->size += current->next->actualSize + sizeof(BlockDescriptor);
-				current->actualSize += current->next->actualSize + sizeof(BlockDescriptor);
-				BlockDescriptor* toBeDeleted = current->next;
-				current->next = toBeDeleted->next;
-				if (toBeDeleted->next) {
-					toBeDeleted->next->prev = current;
-				}*/
-				//std::cout << "1" << std::endl;
+				if (currentEnd == nextStart) {
+					/*current->size += current->next->actualSize + sizeof(BlockDescriptor);
+					current->actualSize += current->next->actualSize + sizeof(BlockDescriptor);
+					BlockDescriptor* toBeDeleted = current->next;
+					current->next = toBeDeleted->next;
+					if (toBeDeleted->next) {
+						toBeDeleted->next->prev = current;
+					}*/
+					//std::cout << "1" << std::endl;
 
-				BlockDescriptor* toBeDeleted = current;
-				current->next->size += current->actualSize + sizeof(BlockDescriptor);
-				current->next->actualSize += current->actualSize + sizeof(BlockDescriptor);
-				//---------
-				current->next->startAddress = static_cast<char*>(current->next->startAddress) - current->actualSize - sizeof(BlockDescriptor);
-				//---------
-				if (toBeDeleted->prev) {
-					toBeDeleted->prev->next = current->next;
-					current->next->prev = toBeDeleted->prev;
+					BlockDescriptor* toBeDeleted = current;
+					current->next->size += current->actualSize + sizeof(BlockDescriptor);
+					current->next->actualSize += current->actualSize + sizeof(BlockDescriptor);
+					//---------
+					current->next->startAddress = static_cast<char*>(current->next->startAddress) - current->actualSize - sizeof(BlockDescriptor);
+					//---------
+					if (toBeDeleted->prev) {
+						toBeDeleted->prev->next = current->next;
+						current->next->prev = toBeDeleted->prev;
+					}
+					else
+					{
+						pHeapManager->freeBlocks = current->next;
+						current->next->prev = pHeapManager->freeBlocks;
+					}
+				}
+				else if (currentEnd + sizeof(BlockDescriptor) == nextStart) {
+					//std::cout << "2" << std::endl;
+					current->actualSize += current->next->actualSize + sizeof(BlockDescriptor);
+					current->size += current->next->actualSize + sizeof(BlockDescriptor);
+					BlockDescriptor* toBeDeleted = current->next;
+					current->next = toBeDeleted->next;
+					if (toBeDeleted->next) {
+						toBeDeleted->next->prev = current;
+					}
 				}
 				else
 				{
-					pHeapManager->freeBlocks = current->next;
-					current->next->prev = pHeapManager->freeBlocks;
+					current = current->next;
 				}
-			} 
-			else if (currentEnd + sizeof(BlockDescriptor) >= nextStart && currentEnd < nextStart) {
-				current->actualSize += current->next->actualSize + sizeof(BlockDescriptor);
-				BlockDescriptor* toBeDeleted = current->next;
-				current->next = toBeDeleted->next;
-				if (toBeDeleted->next) {
-					toBeDeleted->next->prev = current;
-				}
-			}
-			else
-			{
-				current = current->next;
 			}
 		}
 

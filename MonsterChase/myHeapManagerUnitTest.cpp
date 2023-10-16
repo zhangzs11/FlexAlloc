@@ -1,4 +1,4 @@
-#include "HeapManagerProxy.h"
+﻿#include "HeapManagerProxy.h"
 #include <Windows.h>
 
 #include <assert.h>
@@ -11,9 +11,153 @@
 #define USE_HEAP_ALLOC
 #define TEST_SINGLE_LARGE_ALLOCATION
 
-bool HeapManager_UnitTest()
+void myHeapManager_UnitTest1() {
+	using namespace HeapManagerProxy;
+	const size_t 		mysizeHeap = 1024 * 1024;
+	const unsigned int 	numDescriptors = 2048;
+	void* pHeapMemory = HeapAlloc(GetProcessHeap(), 0, mysizeHeap);
+	HeapManager* pHeapManager = CreateHeapManager(pHeapMemory, mysizeHeap, numDescriptors);
+	//ShowFreeBlocks(pHeapManager);
+	//ShowOutstandingAllocations(pHeapManager);
+	//void* pPtr1 = alloc(pHeapManager, 1);
+	//void* pPtr3;
+	//for (int i = 0; i < 20000; i++) {
+	//	pPtr3 = alloc(pHeapManager, 1);
+	//	free(pHeapManager, pPtr3);
+	//}
+	//ShowFreeBlocks(pHeapManager);
+	//ShowOutstandingAllocations(pHeapManager);
+	//free(pHeapManager, pPtr1);
+	//ShowFreeBlocks(pHeapManager);
+	//ShowOutstandingAllocations(pHeapManager);
+	//Collect(pHeapManager);
+	//ShowFreeBlocks(pHeapManager);
+	//ShowOutstandingAllocations(pHeapManager);
+
+	//ShowFreeBlocks(pHeapManager);
+	//void* pPtr1 = alloc(pHeapManager, 100);
+	//void* pPtr2 = alloc(pHeapManager, 100);
+	////void* pPtr3;
+	////for (int i = 0; i < 20000; i++) {
+	////	pPtr3 = alloc(pHeapManager, 100);
+	////	free(pHeapManager, pPtr3);
+	////}
+	////free(pHeapManager, pPtr1);
+	//free(pHeapManager, pPtr2);
+	//Collect(pHeapManager);
+	//free(pHeapManager, pPtr1);
+	//Collect(pHeapManager);
+	//ShowFreeBlocks(pHeapManager);
+	//ShowOutstandingAllocations(pHeapManager);
+
+	std::vector<void*> AllocatedAddresses;
+	do
+	{
+		const size_t		maxTestAllocationSize = 1024;
+
+		size_t			sizeAlloc = 48 + (rand() & (maxTestAllocationSize - 1));
+		//size_t			sizeAlloc = 1;
+		void* pPtr = alloc(pHeapManager, sizeAlloc);
+
+		// if allocation failed see if garbage collecting will create a large enough block
+		if (pPtr == nullptr)
+		{
+			Collect(pHeapManager);
+			pPtr = alloc(pHeapManager, sizeAlloc);
+			// if not we're done. go on to cleanup phase of test
+			if (pPtr == nullptr)
+				break;
+		}
+
+		AllocatedAddresses.push_back(pPtr);
+
+		// randomly free and/or garbage collect during allocation phase
+		const unsigned int freeAboutEvery = 10;
+		const unsigned int garbageCollectAboutEvery = 40;
+
+		if (!AllocatedAddresses.empty() && ((rand() % freeAboutEvery) == 0))
+		{
+			void* pPtr = AllocatedAddresses.back();
+			AllocatedAddresses.pop_back();
+
+			bool success = Contains(pHeapManager, pPtr) && IsAllocated(pHeapManager, pPtr);
+			assert(success);
+
+			success = free(pHeapManager, pPtr);
+			assert(success);
+		}
+
+		if ((rand() % garbageCollectAboutEvery) == 0)
+		{
+			Collect(pHeapManager);
+		}
+
+	} while (1);
+
+	printf("After exhausting allocations:\n");
+	ShowFreeBlocks(pHeapManager);
+	ShowOutstandingAllocations(pHeapManager);
+	printf("\n");
+	if (!AllocatedAddresses.empty())
+	{
+		std::random_shuffle(AllocatedAddresses.begin(), AllocatedAddresses.end());
+
+		while (!AllocatedAddresses.empty())
+		{
+			void* pPtr = AllocatedAddresses.back();
+			AllocatedAddresses.pop_back();
+
+			bool success = Contains(pHeapManager, pPtr) && IsAllocated(pHeapManager, pPtr);
+			assert(success);
+
+			success = free(pHeapManager, pPtr);
+			assert(success);
+		}
+		printf("After freeing allocations:\n");
+		ShowFreeBlocks(pHeapManager);
+		ShowOutstandingAllocations(pHeapManager);
+		printf("\n");
+
+		// do garbage collection
+		Collect(pHeapManager);
+		Collect(pHeapManager);
+		// our heap should be one single block, all the memory it started with
+
+		printf("After garbage collection:\n");
+		ShowFreeBlocks(pHeapManager);
+		ShowOutstandingAllocations(pHeapManager);
+		printf("\n");
+
+		// do a large test allocation to see if garbage collection worked
+		void* pPtr = alloc(pHeapManager, mysizeHeap / 2);
+		assert(pPtr);
+		ShowFreeBlocks(pHeapManager);
+		ShowOutstandingAllocations(pHeapManager);
+		if (pPtr)
+		{
+			bool success = Contains(pHeapManager, pPtr) && IsAllocated(pHeapManager, pPtr);
+			assert(success);
+
+			success = free(pHeapManager, pPtr);
+			assert(success);
+
+		}
+	}
+
+	Destroy(pHeapManager);
+	pHeapManager = nullptr;
+
+	if (pHeapMemory)
+	{
+		HeapFree(GetProcessHeap(), 0, pHeapMemory);
+	}
+
+	// we succeeded
+}
+bool myHeapManager_UnitTest2()
 {
 	using namespace HeapManagerProxy;
+
 	const size_t 		sizeHeap = 1024 * 1024;
 	const unsigned int 	numDescriptors = 2048;
 
@@ -99,6 +243,7 @@ bool HeapManager_UnitTest()
 		const size_t		maxTestAllocationSize = 1024;
 
 		size_t			sizeAlloc = 1 + (rand() & (maxTestAllocationSize - 1));
+		//size_t			sizeAlloc = 1000;
 #ifdef SUPPORTS_ALIGNMENT
 		// pick an alignment
 		const unsigned int	alignments[] = { 4, 8, 16, 32, 64 };
@@ -245,7 +390,7 @@ bool HeapManager_UnitTest()
 		VirtualFree(pHeapMemory, 0, MEM_RELEASE);
 #endif
 	}
+
 	// we succeeded
-	std::cout << "Zhang Success!" << std::endl;
 	return true;
 }
