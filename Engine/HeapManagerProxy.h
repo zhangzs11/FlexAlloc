@@ -39,11 +39,11 @@ namespace HeapManagerProxy {
 	void* alloc(HeapManager* pHeapManager, size_t size);
 	void* alloc(HeapManager* pHeapManager, size_t size, size_t alignment);
 	bool free(HeapManager* pHeapManager, void* ptr);
-	size_t GetLargestFreeBlock(HeapManager* pHeapManager);
-	void ShowFreeBlocks(HeapManager* pHeapManager);
-	void ShowOutstandingAllocations(HeapManager* pHeadManager);
-	bool Contains(HeapManager* pHeapManager, void* pPtr);
-	bool IsAllocated(HeapManager* pHeadManager, void* pPtr);
+	size_t GetLargestFreeBlock(const HeapManager* pHeapManager);
+	void ShowFreeBlocks(const HeapManager* pHeapManager);
+	void ShowOutstandingAllocations(const HeapManager* pHeadManager);
+	bool Contains(const HeapManager* pHeapManager, const void* pPtr);
+	bool IsAllocated(const HeapManager* pHeadManager, const void* pPtr);
 	void Collect(HeapManager* pHeapManager);
 	void Destroy(HeapManager* pHeadManager);
 }

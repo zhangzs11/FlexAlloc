@@ -4,7 +4,6 @@ namespace HeapManagerProxy {
 		//heapStart = ::HeapAlloc(::GetProcessHeap(), 0, size);
 		heapStart = pHeapMemory;
 		heapSize = size;
-		//freeBlocks = reinterpret_cast<BlockDescriptor*>(heapStart);//revise : freeBlocks = new (heapStart) BlockDescriptor;
 		freeBlocks = new (heapStart) BlockDescriptor;
 		freeBlocks->startAddress = static_cast<char*>(heapStart) + sizeof(BlockDescriptor);
 		freeBlocks->actualStart = freeBlocks->startAddress;
@@ -43,34 +42,11 @@ namespace HeapManagerProxy {
 		if (current) {
 			current->prev = block;
 		}
-
-		//Attempt to coalesce with previous and next blocks
-
-		////Try to coalesce with the previous block
-		//if (prev && static_cast<char*>(prev->startAddress) + prev->size == block->startAddress) {
-		//	prev->size += block->actualSize + sizeof(BlockDescriptor);
-		//	prev->actualSize += block->actualSize + sizeof(BlockDescriptor);
-		//	prev->next = block->next;
-		//	if (block->next) {
-		//		block->next->prev = prev;
-		//	}
-		//}
-
-		//////Try to coalesce with the next block
-		//if (current && static_cast<char*>(block->startAddress) + block->size == current->startAddress) {
-		//	block->size += current->actualSize + sizeof(BlockDescriptor);
-		//	block->actualSize += current->actualSize + sizeof(BlockDescriptor);
-		//	block->next = current->next;
-		//	if (current->next) {
-		//		current->next->prev = block;
-		//	}
-		//}
 	}
 	void* HeapManager::allocate(size_t size) {
 		BlockDescriptor* current = freeBlocks;
 		while (current) {
 			if (current->size >= size + sizeof(BlockDescriptor)) {
-				//BlockDescriptor* newBlock = static_cast<BlockDescriptor*>(current->startAddress);//revise: BlockDescriptor* newBlock = new (current->startAddress) BlockDescriptor();
 				BlockDescriptor* newBlock = new (current->startAddress) BlockDescriptor();
 				newBlock->startAddress = static_cast<char*>(current->startAddress) + sizeof(BlockDescriptor);
 				newBlock->actualStart = newBlock->startAddress;
@@ -103,7 +79,6 @@ namespace HeapManagerProxy {
 			size_t totalSize = size + sizeof(BlockDescriptor) + adjustment;
 
 			if (current->size > totalSize) {
-				//BlockDescriptor* newBlock = reinterpret_cast<BlockDescriptor*>(adjustedAddress - sizeof(BlockDescriptor));//revise: BlockDescriptor* newBlock = new (adjustedAddress - sizeof(BlockDescriptor)) BlockDescriptor();
 				BlockDescriptor* newBlock = new (reinterpret_cast<void*>(adjustedAddress - sizeof(BlockDescriptor))) BlockDescriptor();
 				newBlock->startAddress = reinterpret_cast<void*>(adjustedAddress);
 				newBlock->actualStart = reinterpret_cast<void*>(reinterpret_cast<uintptr_t>(current->startAddress) + sizeof(BlockDescriptor));
@@ -141,9 +116,6 @@ namespace HeapManagerProxy {
 				if (current->next) {
 					current->next->prev = current->prev;
 				}
-
-				//BlockDescriptor* originalBlock = reinterpret_cast<BlockDescriptor*>(reinterpret_cast<char*>(current->actualStart) - sizeof(BlockDescriptor));//revise: BlockDescriptor temp = *current; 
-				//*originalBlock = *current; // revise: BlockDescriptor* originalBlock = new(reinterpret_cast<char*>(current->actualStart) - sizeof(BlockDescriptor)) BlockDescriptor(temp);
 				BlockDescriptor temp = *current;
 				BlockDescriptor* originalBlock = new(reinterpret_cast<char*>(current->actualStart) - sizeof(BlockDescriptor)) BlockDescriptor(temp);
 				originalBlock->startAddress = originalBlock->actualStart;
@@ -162,7 +134,7 @@ namespace HeapManagerProxy {
 	BlockDescriptor* HeapManager::GetOutstandingBlocks() const {
 		return outstandingBlocks;
 	}
-	size_t GetLargestFreeBlock(HeapManager* pHeapManager) {
+	size_t GetLargestFreeBlock(const HeapManager* pHeapManager) {
 		size_t largestSize = 0;
 		BlockDescriptor* current = pHeapManager->GetFreeBlocks();
 		while (current) {
@@ -173,14 +145,14 @@ namespace HeapManagerProxy {
 		}
 		return largestSize;
 	}
-	void ShowFreeBlocks(HeapManager* pHeapManager) {
+	void ShowFreeBlocks(const HeapManager* pHeapManager) {
 		BlockDescriptor* current = pHeapManager->GetFreeBlocks();
 		while (current) {
 			std::cout << "Free Block - Address: " << reinterpret_cast<uintptr_t>(current->startAddress) << " - Size: " << current->size << " -End Address: " << reinterpret_cast<uintptr_t>(current->startAddress) + current->size << std::endl;
 			current = current->next;
 		}
 	}
-	void ShowOutstandingAllocations(HeapManager* pHeadManager) {
+	void ShowOutstandingAllocations(const HeapManager* pHeadManager) {
 		BlockDescriptor* current = pHeadManager->GetOutstandingBlocks();
 		if (!current) {
 			std::cout << "No outstanding allocations!" << std::endl;
@@ -194,13 +166,13 @@ namespace HeapManagerProxy {
 		}
 		std::cout << std::endl;
 	}
-	bool Contains(HeapManager* pHeapManager, void* pPtr) {
+	bool Contains(const HeapManager* pHeapManager, const void* pPtr) {
 		uintptr_t heapStartAddress = reinterpret_cast<uintptr_t>(pHeapManager->GetHeapStart());
 		uintptr_t heapEndAddress = heapStartAddress + pHeapManager->GetHeapSize();
 		uintptr_t targetAddress = reinterpret_cast<uintptr_t>(pPtr);
 		return targetAddress >= heapStartAddress && targetAddress < heapEndAddress;
 	}
-	bool IsAllocated(HeapManager* pHeadManager, void* pPtr) {
+	bool IsAllocated(const HeapManager* pHeadManager, const void* pPtr) {
 		BlockDescriptor* currentBlock = pHeadManager->GetOutstandingBlocks();
 		while (currentBlock != nullptr) {
 			if (pPtr == currentBlock->startAddress) {
@@ -218,21 +190,10 @@ namespace HeapManagerProxy {
 				uintptr_t nextStart = reinterpret_cast<uintptr_t>(current->next->startAddress);
 
 				if (currentEnd == nextStart) {
-					/*current->size += current->next->actualSize + sizeof(BlockDescriptor);
-					current->actualSize += current->next->actualSize + sizeof(BlockDescriptor);
-					BlockDescriptor* toBeDeleted = current->next;
-					current->next = toBeDeleted->next;
-					if (toBeDeleted->next) {
-						toBeDeleted->next->prev = current;
-					}*/
-					//std::cout << "1" << std::endl;
-
 					BlockDescriptor* toBeDeleted = current;
 					current->next->size += current->actualSize + sizeof(BlockDescriptor);
 					current->next->actualSize += current->actualSize + sizeof(BlockDescriptor);
-					//---------
 					current->next->startAddress = static_cast<char*>(current->next->startAddress) - current->actualSize - sizeof(BlockDescriptor);
-					//---------
 					if (toBeDeleted->prev) {
 						toBeDeleted->prev->next = current->next;
 						current->next->prev = toBeDeleted->prev;
@@ -244,7 +205,6 @@ namespace HeapManagerProxy {
 					}
 				}
 				else if (currentEnd + sizeof(BlockDescriptor) == nextStart) {
-					//std::cout << "2" << std::endl;
 					current->actualSize += current->next->actualSize + sizeof(BlockDescriptor);
 					current->size += current->next->actualSize + sizeof(BlockDescriptor);
 					BlockDescriptor* toBeDeleted = current->next;
@@ -263,7 +223,6 @@ namespace HeapManagerProxy {
 	}
 	void Destroy(HeapManager* pHeadManager) {
 		if (pHeadManager) {
-			//delete pHeadManager;
 			pHeadManager = nullptr;
 		}
 	}
