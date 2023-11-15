@@ -396,7 +396,3 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
-
-.vs/
-x64/
-MonsterChase/MonsterChase.vcxproj.user
