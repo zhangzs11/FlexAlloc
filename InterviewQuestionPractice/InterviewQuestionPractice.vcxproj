@@ -21,8 +21,8 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{d44ddb77-e93f-4a6f-8ca2-b90ef9ee794f}</ProjectGuid>
-    <RootNamespace>ClassDesignIssues</RootNamespace>
+    <ProjectGuid>{34ab776f-ed6e-4e85-88ff-a9a3b914a9c1}</ProjectGuid>
+    <RootNamespace>InterviewQuestionPractice</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -127,7 +127,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="InterviewQuestions.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="UnitTest.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="InterviewQuestions.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
