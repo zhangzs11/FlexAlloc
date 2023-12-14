@@ -15,13 +15,13 @@ bool InitializeMemorySystem(void* i_pHeapMemory, size_t i_sizeHeapMemory, unsign
     };
 
     std::vector<AllocatorConfig> allocatorConfigs = {
-        {16, 1000},   
-        {32, 1000},  
-        {96, 1000}    
+        {16, 100},
+        {32, 200},
+        {96, 400}
     };
     std::cout << "start InitializeMemorySystem" << std::endl;
     for (const auto& config : allocatorConfigs) {
-        size_t totalMemoryForAllocator = config.blockSize * config.numBlocks;
+        size_t totalMemoryForAllocator = config.blockSize * config.numBlocks*10;
         std::cout << "Checking memory for FixedSizeAllocator" << std::endl;
         if (currentAllocatorMemory + totalMemoryForAllocator > static_cast<char*>(i_pHeapMemory) + i_sizeHeapMemory) {
 
@@ -30,9 +30,8 @@ bool InitializeMemorySystem(void* i_pHeapMemory, size_t i_sizeHeapMemory, unsign
 
         }
 
-        FixedSizeAllocator* allocator = new FixedSizeAllocator(currentAllocatorMemory, config.blockSize, config.numBlocks);
+        FixedSizeAllocator* allocator = new FixedSizeAllocator(currentAllocatorMemory, config.blockSize, config.numBlocks*10);
         gFixedSizeAllocators.push_back(allocator);
-        std::cout << "size of vector" << gFixedSizeAllocators.size() << std::endl;
         currentAllocatorMemory += totalMemoryForAllocator;
         std::cout << "create fixedAlloctor" << std::endl;
     }
@@ -57,7 +56,6 @@ void DestroyMemorySystem()
 {
 	// Destroy your HeapManager and FixedSizeAllocators
     std::cout << "Destroy FixedSizeAllocators" << std::endl;
-    std::cout << "number of FixedSizeAllocators: " << gFixedSizeAllocators.size() << std::endl;
     for (FixedSizeAllocator* allocator : gFixedSizeAllocators) {
         delete allocator;
     }

@@ -17,7 +17,6 @@ bool MemorySystem_UnitTest();
 
 int main(int i_arg, char **)
 {
-	std::cout << "Hello" << std::endl;
 	const size_t 		sizeHeap = 1024 * 1024;
 
 	// you may not need this if you don't use a descriptor pool
@@ -34,7 +33,7 @@ int main(int i_arg, char **)
 	bool success = MemorySystem_UnitTest();
 	assert(success);
 	
-	if (success) std::cout << "Success!" << std::endl;
+	if (success) std::cout << "Success! Pass the unit test." << std::endl;
 	else std::cout << "Fail" << std::endl;
 
 	// Clean up your Memory System (HeapManager and FixedSizeAllocators)

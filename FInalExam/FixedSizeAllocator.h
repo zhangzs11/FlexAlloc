@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include <iostream>
 #include "BitArray.h"
 
 class FixedSizeAllocator {
@@ -11,6 +12,19 @@ public:
     }
 
     ~FixedSizeAllocator() {
+#ifdef _DEBUG
+        bool hasOutstandingAllocations = false;
+        for (size_t i = 0; i < numBlocks; ++i) {
+            if (pBitArray->IsBitSet(i)) {
+                hasOutstandingAllocations = true;
+                break;
+            }
+        }
+        if (hasOutstandingAllocations) {
+            std::cerr << "FixedSizeAllocator destructed with outstanding allocations!" << std::endl;
+        }
+#endif
+
         delete pBitArray;
     }
     size_t GetBlockSize() const {
@@ -52,9 +66,9 @@ public:
     }
 
     void free(void* i_ptr) {
-        //if (!isValidAllocation(i_ptr)) {
-        //    return;
-        //}
+        if (!isValidAllocation(i_ptr)) {
+            return;
+        }
 
         size_t blockIndex = (static_cast<char*>(i_ptr) - static_cast<char*>(pHeapMemory)) / sizeBlock;
         if (blockIndex < numBlocks) {
