@@ -48,13 +48,13 @@ bool InitializeMemorySystem(void* i_pHeapMemory, size_t i_sizeHeapMemory, unsign
 void Collect()
 {
 	// coalesce free blocks
-	// you may or may not need to do this depending on how you've implemented your HeapManager
+	
     HeapManagerProxy::Collect(gHeapManager);
 }
 
 void DestroyMemorySystem()
 {
-	// Destroy your HeapManager and FixedSizeAllocators
+	// Destroy HeapManager and FixedSizeAllocators
     std::cout << "Destroy FixedSizeAllocators" << std::endl;
     for (FixedSizeAllocator* allocator : gFixedSizeAllocators) {
         delete allocator;
