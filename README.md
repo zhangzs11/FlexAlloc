@@ -63,6 +63,7 @@ initialBlock->size = initialHeapSize - sizeof(BlockDescriptor);
 // Set up initial linked list pointers
 initialBlock->prev = nullptr;
 initialBlock->next = nullptr;
+```
 
 ### FixedSizeAllocator Class
 Located in `FlexAlloc/FixedSizeAllocator.h`.
