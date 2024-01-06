@@ -116,10 +116,37 @@ Located in `FlexAlloc/BitArray.h`.
 
 ## Additional Functions
 
+- **InitializeMemorySystem Function (`bool InitializeMemorySystem(void * i_pHeapMemory, size_t i_sizeHeapMemory, unsigned int i_OptionalNumDescriptors)`)**:  
+  Initializes memory system including HeapManager and some FixedSizeAllocators.
+  Location: `FlexAlloc/MemorySystem.h`, line 13.
+
+- **Collect Function (`void Collect()`)**:  
+  Coalesces free blocks in attempt to create larger blocks.
+  Location: `FlexAlloc/MemorySystem.h`, line 16.
+
+- **DestroyMemorySystem Function (`void DestroyMemorySystem()`)**:  
+  Location: `FlexAlloc/MemorySystem.h`, line 19.
+
+- **Custom Memory Allocation Functions Function**:  
+  Location: `FlexAlloc/Allocators.h`.
+Provides custom memory allocation and deallocation functions to give users more control and efficiency in managing memory. These functions are designed to replace the standard allocation and deallocation functions with more robust and performance-tuned alternatives. Below are the custom functions provided:
+
+- `void* __cdecl Mymalloc(size_t i_size)`: Custom malloc function to allocate memory of `i_size` bytes. Similar to `malloc`, it returns a pointer to the beginning of the allocated memory.
+
+- `void __cdecl Myfree(void* i_ptr)`: Custom free function to deallocate memory previously allocated with `Mymalloc`. Pass the pointer returned by `Mymalloc` to free the allocated memory.
+
+- `void* __CRTDECL operator new(size_t i_size)`: Overloaded `new` operator for single object allocation. It uses the custom allocator to allocate `i_size` bytes of memory.
+
+- `void __CRTDECL operator delete(void* i_ptr) noexcept`: Overloaded `delete` operator for single object deallocation. It uses the custom deallocator to free the memory pointed by `i_ptr`.
+
+- `void* __CRTDECL operator new[](size_t i_size)`: Overloaded `new[]` operator for array allocation. It allocates an array of objects, each of size `i_size`, using the custom allocator.
+
+- `void __CRTDECL operator delete[](void* i_ptr) noexcept`: Overloaded `delete[]` operator for array deallocation. It deallocates an array of objects previously allocated with the custom `new[]` operator.
+
 ## General Requirements
 
 - Pass the included unit test.
 - Compatible with 32 and 64 bit configurations.
-- Exits without leaking memory.
+- Exits without leaking memory6
 
 
